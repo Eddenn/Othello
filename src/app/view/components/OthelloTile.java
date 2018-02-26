@@ -1,6 +1,4 @@
-package app.view.Components;
-
-import app.model.Tile;
+package app.view.components;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

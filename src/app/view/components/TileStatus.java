@@ -1,4 +1,4 @@
-package app.view.Components;
+package app.view.components;
 
 public enum TileStatus {
     WHITE,

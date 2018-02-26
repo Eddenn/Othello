@@ -1,7 +1,7 @@
 package app.view;
 
 import app.model.Game;
-import app.view.Components.OthelloBoard;
+import app.view.components.OthelloBoard;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

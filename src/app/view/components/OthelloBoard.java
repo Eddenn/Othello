@@ -1,4 +1,4 @@
-package app.view.Components;
+package app.view.components;
 
 import app.model.Game;
 import app.model.Tile;
