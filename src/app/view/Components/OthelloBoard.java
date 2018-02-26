@@ -1,4 +1,7 @@
-package App.View.Components;
+package app.view.Components;
+
+import app.model.Game;
+import app.model.Tile;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -63,6 +66,22 @@ public class OthelloBoard extends JPanel {
             throw new IndexOutOfBoundsException("Il n'existe pas de tuile à la position ("+x+","+y+")");
         }
         grid[x][y].setStatus(ts);
+    }
+
+    public void refreshModel(Game g) {
+        Tile[][] board = g.getBoard();
+        for (int x=0; x<board[0].length; x++) {
+            for (int y=0; y<board.length; y++) {
+                switch (board[x][y]) {
+                    case WHITE: setTileStatus(x,y,TileStatus.WHITE); break;
+                    case BLACK: setTileStatus(x,y,TileStatus.BLACK); break;
+                    default : setTileStatus(x,y,TileStatus.EMPTY);
+                }
+                if(g.getPlaysAllowed()[x][y]) {
+                    setTileStatus(x,y,TileStatus.EMPTY_PLAYABLE);
+                }
+            }
+        }
     }
 
     @Override

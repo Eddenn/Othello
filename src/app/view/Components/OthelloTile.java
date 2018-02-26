@@ -1,4 +1,6 @@
-package App.View.Components;
+package app.view.Components;
+
+import app.model.Tile;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -17,6 +19,7 @@ public class OthelloTile extends JComponent {
     private int size;
     private static Image imgWhitePawn;
     private static Image imgBlackPawn;
+    private static Image imgPlayable;
     private static Image backgroundTile;
 
     /**
@@ -31,6 +34,7 @@ public class OthelloTile extends JComponent {
         try {
             imgBlackPawn = ImageIO.read(getClass().getResource("/black_pawn.png"));
             imgWhitePawn = ImageIO.read(getClass().getResource("/white_pawn.png"));
+            imgPlayable = ImageIO.read(getClass().getResource("/playable_place.png"));
             backgroundTile = ImageIO.read(getClass().getResource("/board_tile.png"));
         } catch(Exception e) {
             throw new IOException("Les images correspondant aux poins n'ont pas pu être chargées.");
@@ -68,6 +72,8 @@ public class OthelloTile extends JComponent {
             case BLACK : img = imgBlackPawn;
                 break;
             case WHITE : img = imgWhitePawn;
+                break;
+            case EMPTY_PLAYABLE : img = imgPlayable;
                 break;
             default    : //Merci le compilateur (obligé)
         }

@@ -1,7 +1,7 @@
-package App.View;
+package app.view;
 
-import App.View.Components.OthelloBoard;
-import App.View.Components.TileStatus;
+import app.model.Game;
+import app.view.Components.OthelloBoard;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -9,7 +9,6 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -19,6 +18,7 @@ import java.net.URL;
  */
 public class OthelloGUI {
 
+    private Game game;
     private Font font;
     private JFrame mainFrame;
     private Border paddedBorderRight, paddedBorderLeft;
@@ -54,6 +54,7 @@ public class OthelloGUI {
      * Initialise le model
      */
     private void createModel() {
+        game = new Game(null,null);
         try {
             board = new OthelloBoard(8,8);
         } catch (Exception e) {
@@ -63,10 +64,7 @@ public class OthelloGUI {
                     JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
-        board.setTileStatus(3,3, TileStatus.WHITE);
-        board.setTileStatus(3,4,TileStatus.BLACK);
-        board.setTileStatus(4,3,TileStatus.BLACK);
-        board.setTileStatus(4,4,TileStatus.WHITE);
+        board.refreshModel(game);
     }
 
     /**
@@ -85,8 +83,8 @@ public class OthelloGUI {
 
         //---- La fenêtre ----//
         mainFrame = new JFrame("OthelloGUI");
-        mainFrame.setSize(1024,768);
-        mainFrame.setMinimumSize(new Dimension(1024,768));
+        mainFrame.setSize(800,600);
+        mainFrame.setMinimumSize(new Dimension(800,600));
         mainFrame.setLayout(new BorderLayout());
         //mainFrame.setUndecorated(true);
         mainFrame.setBackground(new Color(130, 204, 221));
