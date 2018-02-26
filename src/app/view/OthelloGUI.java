@@ -1,7 +1,11 @@
 package app.view;
 
 import app.model.Game;
+import app.model.player.Player;
+import app.model.player.RealPlayer;
 import app.view.components.OthelloBoard;
+import app.view.components.OthelloTile;
+import app.view.components.TileStatus;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -9,9 +13,12 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Interface graphique de l'application OthelloGUI
@@ -19,18 +26,13 @@ import java.net.URL;
 public class OthelloGUI {
 
     private Game game;
+
     private Font font;
     private JFrame mainFrame;
     private Border paddedBorderRight, paddedBorderLeft;
     private OthelloBoard board;
     private JLabel player1,player2;
     private JLabel player1score, player2score;
-    /*private JMenuBar menuBar;
-    private JMenu menuFile, menuAbout;
-    private JMenuItem mif1, mif2, mif3;
-    private JMenuItem mia1;
-    private JPanel jpHead;
-    private JButton btnMinimize, btnMaximize, btnClose;*/
 
     /**
      * Constructeur appellant createModel(), createComponents(), placeComponents() et createControllers()
@@ -54,7 +56,7 @@ public class OthelloGUI {
      * Initialise le model
      */
     private void createModel() {
-        game = new Game(null,null);
+        game = new Game(new RealPlayer(),new RealPlayer());
         try {
             board = new OthelloBoard(8,8);
         } catch (Exception e) {
@@ -108,67 +110,12 @@ public class OthelloGUI {
         player2.setFont(font.deriveFont(Font.PLAIN,24));
         player2score = new JLabel("16",SwingConstants.CENTER);
         player2score.setFont(font.deriveFont(Font.PLAIN,32));
-
-        /*
-        //---- MenuBar ----//
-        menuBar = new JMenuBar();
-        menuFile = new JMenu("Fichier");
-        mif1 = new JMenuItem("Ouvrir");
-        menuFile.add(mif1);
-        mif2 = new JMenuItem("Enregistrer");
-        menuFile.add(mif2);
-        mif3 = new JMenuItem("Quitter");
-        menuFile.add(mif3);
-        menuBar.add(menuFile);
-
-        menuAbout = new JMenu("A propos");
-        mia1 = new JMenuItem("?");
-        menuAbout.add(mia1);
-        menuBar.add(menuAbout);
-
-        //---- Buttons ----//
-        btnMinimize = createFlatButton(getClass().getResource("/button/minimize.png"));
-        btnMaximize = createFlatButton(getClass().getResource("/button/maximize.png"));
-        btnClose = createFlatButton(getClass().getResource("/button/close.png"));*/
-    }
-
-    private JButton createFlatButton(URL icon) {
-        JButton btn = new JButton(new ImageIcon(icon));
-        btn.setFocusPainted(false);
-        btn.setBorderPainted(false);
-        btn.setBackground(Color.WHITE);
-        btn.setOpaque(false);
-        btn.setMargin(new Insets(0,0,0,0));
-        return btn;
     }
 
     /**
      * Place les composants sur la fenêtre
      */
     private void placeComponents() {
-        /*
-        // En tête de l'appli
-        {
-            FlowLayout fLayout = new FlowLayout(FlowLayout.LEFT);
-            fLayout.setHgap(0);
-            fLayout.setVgap(0);
-            JPanel q = new JPanel(fLayout); {
-                q.add(menuBar);
-            }
-            q.setOpaque(false);
-            jpHead.add(q,BorderLayout.WEST);
-            fLayout.setAlignment(FlowLayout.RIGHT);
-            q = new JPanel(fLayout); {
-                q.add(btnMinimize);
-                q.add(btnMaximize);
-                q.add(btnClose);
-            }
-            q.setOpaque(false);
-            jpHead.add(q,BorderLayout.EAST);
-        }
-        jpHead.setBackground(new Color(130, 204, 221));
-        mainFrame.add(jpHead,BorderLayout.NORTH);*/
-
         //Joueur 1
         JPanel p = new JPanel(new GridBagLayout()); {
             JPanel q = new JPanel(new GridLayout(0,1)); {
@@ -206,32 +153,30 @@ public class OthelloGUI {
     private void createControllers() {
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        /*
-        //---- Button Close/Maximize/Minimize ----//
-        btnClose.addActionListener(new ActionListener() {
+        game.addObserver(new Observer() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                mainFrame.dispose();
-                System.exit(0);
+            public void update(Observable o, Object arg) {
+                board.refreshModel(game);
             }
         });
-        btnMaximize.addActionListener(new ActionListener() {
+
+        board.addMouseListener(new MouseAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                if(mainFrame.getExtendedState() == JFrame.NORMAL) {
-                    mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-                } else {
-                    mainFrame.setExtendedState(JFrame.NORMAL);
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                OthelloTile viewTile = board.getTile(e.getPoint());
+
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                super.mouseMoved(e);
+                OthelloTile viewTile = board.getTile(e.getPoint());
+                if(viewTile.getStatus() == TileStatus.EMPTY_PLAYABLE) {
+                    System.out.println("ok"); //TODO focus
                 }
             }
         });
-        btnMinimize.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mainFrame.setState(JFrame.ICONIFIED);
-            }
-        });
-        */
     }
 
     /**

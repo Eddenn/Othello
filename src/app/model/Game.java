@@ -1,10 +1,16 @@
 package app.model;
 
+import app.model.player.IA;
+import app.model.player.Player;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
-public class Game extends Observable{
+/**
+ * Classe principale du jeu
+ */
+public class Game extends Observable implements Runnable{
 
     private Tile[][] board;
     private boolean[][] playsAllowed;
@@ -12,6 +18,11 @@ public class Game extends Observable{
     private Player playerWhite;
     private Tile playerTurn;
 
+    /**
+     * Constructeur
+     * @param playerBlack
+     * @param playerWhite
+     */
     public Game(Player playerBlack, Player playerWhite) {
         super();
         this.playerBlack = playerBlack;
@@ -29,13 +40,6 @@ public class Game extends Observable{
         board[4][3] = Tile.BLACK;
         board[4][4] = Tile.WHITE;
 
-        /*board[3][3] = Tile.WHITE;
-        board[3][4] = Tile.WHITE;
-        board[4][3] = Tile.BLACK;
-        board[4][4] = Tile.BLACK;
-        board[5][4] = Tile.BLACK;
-        board[3][5] = Tile.WHITE;*/
-
         //Init plays allowed
         this.playsAllowed = new boolean[8][8];
         for (int x = 0; x< playsAllowed[0].length; x++) {
@@ -46,6 +50,10 @@ public class Game extends Observable{
         calculatePlaysAllowed();
     }
 
+    /**
+     * Calcule les positions jouables
+     *  (met à jour playsAllowed)
+     */
     private void calculatePlaysAllowed() {
         for (int x=0; x<playsAllowed[0].length; x++) {
             for (int y=0; y<playsAllowed.length; y++) {
@@ -54,6 +62,12 @@ public class Game extends Observable{
         }
     }
 
+    /**
+     * Calcule si la position (x,y) est une position jouable pour le joueur "playerTurn"
+     * @param x
+     * @param y
+     * @return true si la position est jouable, false sinon
+     */
     private boolean canPlayAt(int x, int y) {
         if( exists(x,y) && board[x][y] == Tile.EMPTY ) {
             Tile ennemyTile = Tile.opposite(playerTurn);
@@ -66,32 +80,35 @@ public class Game extends Observable{
             }
 
             for (Direction d : canTestDirection ) {
-                //System.out.println(d.name());
                 for(int i=2; i<=7; i++) {
                     int dx = d.getDx() * i;
                     int dy = d.getDy() * i;
                     if(exists(x + dx,y + dy)) {
                         if (board[x + dx][y + dy] == playerTurn) {
-                            //System.out.println("[" + (x + dx) + "][" + (y + dy) + "] - true");
                             return true;
                         }
                         if (board[x + dx][y + dy] == Tile.EMPTY) {
-                            //System.out.println("[" + (x + dx) + "][" + (y + dy) + "] - break");
                             break;
                         }
                     }
                 }
             }
-            //System.out.println("("+x+";"+y+")End");
         }
         return false;
     }
 
+    /**
+     * Permet de savoir si la position (x,y) est une position valide
+     * @param x
+     * @param y
+     * @return true si la position est valide, false sinon
+     */
     private boolean exists(int x, int y) {
         return ( x>=0 && y>=0 && x<=7 && y<=7 );
     }
 
-    public void doGame() {
+
+    public void run() {
         //do {
             if(playerTurn == Tile.BLACK) {
                 playerBlack.askToPlay();

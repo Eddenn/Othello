@@ -80,6 +80,14 @@ public class OthelloTile extends JComponent {
     }
 
     @Override
+    public String toString() {
+        return "OthelloTile{" +
+                "status=" + status +
+                ", size=" + size +
+                '}';
+    }
+
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(size,size);
     }
