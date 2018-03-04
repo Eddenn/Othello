@@ -109,7 +109,7 @@ public class Game extends Observable implements Runnable{
 
 
     public void run() {
-        //do {
+        do {
             if(playerTurn == Tile.BLACK) {
                 playerBlack.askToPlay();
             } else {
@@ -117,7 +117,7 @@ public class Game extends Observable implements Runnable{
             }
             playerTurn = Tile.opposite(playerTurn);
             notifyObservers();
-        //} while( !gameEnded() );
+        } while( !gameEnded() );
     }
 
     private boolean gameEnded() {

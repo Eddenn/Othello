@@ -165,18 +165,27 @@ public class OthelloGUI {
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 OthelloTile viewTile = board.getTile(e.getPoint());
-
+                System.out.println(e.getPoint().toString());
             }
-
+        });
+        board.addMouseMotionListener(new MouseAdapter() {
+            OthelloTile hovered_tile;
             @Override
             public void mouseMoved(MouseEvent e) {
                 super.mouseMoved(e);
-                OthelloTile viewTile = board.getTile(e.getPoint());
-                if(viewTile.getStatus() == TileStatus.EMPTY_PLAYABLE) {
-                    System.out.println("ok"); //TODO focus
+                OthelloTile actual_hovered_tile = board.getTile(e.getPoint());
+                if(hovered_tile!=null && hovered_tile.getStatus()==TileStatus.EMPTY_PLAYABLE && hovered_tile!=actual_hovered_tile) {
+                    hovered_tile.setStatus(TileStatus.EMPTY_PLAYABLE);
+                    hovered_tile.repaint();
                 }
+                if(actual_hovered_tile != null && actual_hovered_tile.getStatus() == TileStatus.EMPTY_PLAYABLE) {
+                    actual_hovered_tile.setStatus(TileStatus.EMPTY_PLAYABLE_HOVERED);
+                    actual_hovered_tile.repaint();
+                }
+                hovered_tile = actual_hovered_tile;
             }
         });
+        board.requestFocus();
     }
 
     /**

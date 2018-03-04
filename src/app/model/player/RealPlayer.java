@@ -1,8 +1,9 @@
 package app.model.player;
 
 import java.awt.*;
+import java.util.Observable;
 
-public class RealPlayer implements Player {
+public class RealPlayer extends Observable implements Player {
 
     private boolean hasPlayed;
     private Point play;

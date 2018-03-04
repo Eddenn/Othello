@@ -69,9 +69,15 @@ public class OthelloBoard extends JPanel {
     }
 
     public OthelloTile getTile(Point p) {
+        if(p == null) {
+            return null;
+        }
         int x = (p.x-35)/grid[0][0].getPreferredSize().width;
         int y = (p.y-35)/grid[0][0].getPreferredSize().height;
-        return grid[x][y];
+        if(x<0 || x>=grid.length || y<0 || y>=grid[0].length) {
+            return null;
+        }
+        return grid[y][x];
     }
 
     public void refreshModel(Game g) {

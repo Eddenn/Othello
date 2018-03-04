@@ -15,9 +15,6 @@ public class OthelloTile extends JComponent {
      */
     private TileStatus status;
     private int size;
-    private static Image imgWhitePawn;
-    private static Image imgBlackPawn;
-    private static Image imgPlayable;
     private static Image backgroundTile;
 
     /**
@@ -28,14 +25,10 @@ public class OthelloTile extends JComponent {
         this.size = size;
         this.status = TileStatus.EMPTY;
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
-
         try {
-            imgBlackPawn = ImageIO.read(getClass().getResource("/black_pawn.png"));
-            imgWhitePawn = ImageIO.read(getClass().getResource("/white_pawn.png"));
-            imgPlayable = ImageIO.read(getClass().getResource("/playable_place.png"));
             backgroundTile = ImageIO.read(getClass().getResource("/board_tile.png"));
         } catch(Exception e) {
-            throw new IOException("Les images correspondant aux poins n'ont pas pu être chargées.");
+            throw new IOException("L'image représentant le fond du plateau pas pu être chargée.");
         }
     }
 
@@ -62,19 +55,8 @@ public class OthelloTile extends JComponent {
         g2d.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
-        //g.setColor(new Color(75,135,40));
-        //g.fillRect(0,0,getWidth(),getHeight());
         g.drawImage(backgroundTile,0,0,getWidth(),getHeight(),null);
-        Image img = null;
-        switch (status) {
-            case BLACK : img = imgBlackPawn;
-                break;
-            case WHITE : img = imgWhitePawn;
-                break;
-            case EMPTY_PLAYABLE : img = imgPlayable;
-                break;
-            default    : //Merci le compilateur (obligé)
-        }
+        Image img = status.getImage();
         if(status != TileStatus.EMPTY) g.drawImage(img,5,5,getWidth()-10,getHeight()-10, null);
 
     }
