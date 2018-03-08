@@ -40,7 +40,7 @@ public class OthelloBoard extends JPanel {
 
         for(int x=0; x<grid.length; x++) {
             for(int y=0; y<grid[0].length; y++) {
-                grid[x][y] = new OthelloTile(50);
+                grid[x][y] = new OthelloTile(50,x,y);
                 p.add(grid[x][y]);
             }
         }
@@ -68,6 +68,24 @@ public class OthelloBoard extends JPanel {
         grid[x][y].setStatus(ts);
     }
 
+    /**
+     * Getter retournant la tuile board[i][j]
+     * @param i
+     * @param j
+     * @return OthelloTile à la position board[i][j]
+     */
+    public OthelloTile getTile(int i, int j) {
+        if(i<0 || j<0 || i>=grid.length || j>=grid[0].length) {
+            return null;
+        }
+        return grid[i][j];
+    }
+
+    /**
+     * Touve l'OthelloTile correspondante au Point p
+     * @param p
+     * @return OthelloTile
+     */
     public OthelloTile getTile(Point p) {
         if(p == null) {
             return null;
@@ -80,6 +98,10 @@ public class OthelloBoard extends JPanel {
         return grid[y][x];
     }
 
+    /**
+     * Met à jour le plateau de jeu (la vue)
+     * @param g Game
+     */
     public void refreshModel(Game g) {
         Tile[][] board = g.getBoard();
         for (int x=0; x<board[0].length; x++) {
@@ -94,6 +116,7 @@ public class OthelloBoard extends JPanel {
                 }
             }
         }
+        repaint();
     }
 
     @Override

@@ -14,22 +14,27 @@ public class OthelloTile extends JComponent {
      * Statut de la tuile
      */
     private TileStatus status;
+    private int x, y;
     private int size;
     private static Image backgroundTile;
-
-    /**
-     * Constructeur de la tuile, par defaut le statut est EMPTY
-     */
-    public OthelloTile(int size) throws IOException {
-        super();
-        this.size = size;
-        this.status = TileStatus.EMPTY;
-        setBorder(BorderFactory.createLineBorder(Color.BLACK));
+    {
         try {
             backgroundTile = ImageIO.read(getClass().getResource("/board_tile.png"));
         } catch(Exception e) {
             throw new IOException("L'image représentant le fond du plateau pas pu être chargée.");
         }
+    }
+
+    /**
+     * Constructeur de la tuile, par defaut le statut est EMPTY
+     */
+    public OthelloTile(int size, int x, int y) throws IOException {
+        super();
+        this.x = x;
+        this.y = y;
+        this.size = size;
+        this.status = TileStatus.EMPTY;
+        setBorder(BorderFactory.createLineBorder(Color.BLACK));
     }
 
     /**
@@ -65,6 +70,8 @@ public class OthelloTile extends JComponent {
     public String toString() {
         return "OthelloTile{" +
                 "status=" + status +
+                ", x=" + x +
+                ", y=" + y +
                 ", size=" + size +
                 '}';
     }
@@ -72,5 +79,13 @@ public class OthelloTile extends JComponent {
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(size,size);
+    }
+
+    /**
+     * Getter who return his position in the board
+     * @return
+     */
+    public Point getPosition() {
+        return new Point(x,y);
     }
 }

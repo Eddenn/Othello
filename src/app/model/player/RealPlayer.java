@@ -2,6 +2,7 @@ package app.model.player;
 
 import java.awt.*;
 import java.util.Observable;
+import java.util.concurrent.TimeUnit;
 
 public class RealPlayer extends Observable implements Player {
 
@@ -14,9 +15,10 @@ public class RealPlayer extends Observable implements Player {
     }
 
     @Override
-    public Point askToPlay() {
+    public Point askToPlay() throws InterruptedException {
         do {
             //Wait
+            TimeUnit.MILLISECONDS.sleep(50);
         }while( !hasPlayed );
         this.hasPlayed = false;
         return play;

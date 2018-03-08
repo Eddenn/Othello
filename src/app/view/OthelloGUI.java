@@ -1,7 +1,7 @@
 package app.view;
 
 import app.model.Game;
-import app.model.player.Player;
+import app.model.Tile;
 import app.model.player.RealPlayer;
 import app.view.components.OthelloBoard;
 import app.view.components.OthelloTile;
@@ -31,8 +31,9 @@ public class OthelloGUI {
     private JFrame mainFrame;
     private Border paddedBorderRight, paddedBorderLeft;
     private OthelloBoard board;
-    private JLabel player1,player2;
-    private JLabel player1score, player2score;
+    private JPanel playerBlackPanel, playerWhitePanel;
+    private JLabel playerBlack, playerWhite;
+    private JLabel playerBlackScore, playerWhiteScore;
 
     /**
      * Constructeur appellant createModel(), createComponents(), placeComponents() et createControllers()
@@ -42,6 +43,8 @@ public class OthelloGUI {
         createComponents();
         placeComponents();
         createControllers();
+        refreshView();
+        (new Thread(game)).start();
     }
 
     /**
@@ -66,7 +69,6 @@ public class OthelloGUI {
                     JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
-        board.refreshModel(game);
     }
 
     /**
@@ -97,19 +99,19 @@ public class OthelloGUI {
         paddedBorderRight = BorderFactory.createCompoundBorder(new MatteBorder(0,0,0,3,Color.BLACK),new EmptyBorder(10, 10, 10, 10));
         paddedBorderLeft = BorderFactory.createCompoundBorder(new MatteBorder(0,3,0,0,Color.BLACK),new EmptyBorder(10, 10, 10, 10));
 
-        player1 = new JLabel("Joueur 1",new ImageIcon(getClass().getResource("/player_black.png")),SwingConstants.CENTER);
-        player1.setVerticalTextPosition(SwingConstants.BOTTOM);
-        player1.setHorizontalTextPosition(SwingConstants.CENTER);
-        player1.setFont(font.deriveFont(Font.PLAIN,24));
-        player1score = new JLabel("16",SwingConstants.CENTER);
-        player1score.setFont(font.deriveFont(Font.PLAIN,32));
+        playerBlack = new JLabel("Joueur 1",new ImageIcon(getClass().getResource("/player_black.png")),SwingConstants.CENTER);
+        playerBlack.setVerticalTextPosition(SwingConstants.BOTTOM);
+        playerBlack.setHorizontalTextPosition(SwingConstants.CENTER);
+        playerBlack.setFont(font.deriveFont(Font.PLAIN,24));
+        playerBlackScore = new JLabel("16",SwingConstants.CENTER);
+        playerBlackScore.setFont(font.deriveFont(Font.PLAIN,32));
 
-        player2 = new JLabel("Joueur 2",new ImageIcon(getClass().getResource("/player_white.png")),SwingConstants.CENTER);
-        player2.setVerticalTextPosition(SwingConstants.BOTTOM);
-        player2.setHorizontalTextPosition(SwingConstants.CENTER);
-        player2.setFont(font.deriveFont(Font.PLAIN,24));
-        player2score = new JLabel("16",SwingConstants.CENTER);
-        player2score.setFont(font.deriveFont(Font.PLAIN,32));
+        playerWhite = new JLabel("Joueur 2",new ImageIcon(getClass().getResource("/player_white.png")),SwingConstants.CENTER);
+        playerWhite.setVerticalTextPosition(SwingConstants.BOTTOM);
+        playerWhite.setHorizontalTextPosition(SwingConstants.CENTER);
+        playerWhite.setFont(font.deriveFont(Font.PLAIN,24));
+        playerWhiteScore = new JLabel("16",SwingConstants.CENTER);
+        playerWhiteScore.setFont(font.deriveFont(Font.PLAIN,32));
     }
 
     /**
@@ -117,35 +119,36 @@ public class OthelloGUI {
      */
     private void placeComponents() {
         //Joueur 1
-        JPanel p = new JPanel(new GridBagLayout()); {
+        playerBlackPanel = new JPanel(new GridBagLayout()); {
             JPanel q = new JPanel(new GridLayout(0,1)); {
-                q.add(player1);
-                q.add(player1score);
+                q.add(playerBlack);
+                q.add(playerBlackScore);
             }
             q.setOpaque(false);
-            p.add(q, new GridBagConstraints());
+            playerBlackPanel.add(q, new GridBagConstraints());
         }
-        p.setBackground(new Color(130, 204, 221));
-        p.setBorder(paddedBorderRight);
-        mainFrame.add(p,BorderLayout.WEST);
+        playerBlackPanel.setBackground(new Color(220, 220, 220));
+        playerBlackPanel.setBorder(paddedBorderRight);
+        mainFrame.add(playerBlackPanel,BorderLayout.WEST);
         //Joueur 2
-        p = new JPanel(new GridBagLayout()); {
+        playerWhitePanel = new JPanel(new GridBagLayout()); {
             JPanel q = new JPanel(new GridLayout(0,1)); {
-                q.add(player2);
-                q.add(player2score);
+                q.add(playerWhite);
+                q.add(playerWhiteScore);
             }
             q.setOpaque(false);
-            p.add(q, new GridBagConstraints());
+            playerWhitePanel.add(q, new GridBagConstraints());
         }
-        p.setBackground(new Color(130, 204, 221));
-        p.setBorder(paddedBorderLeft);
-        mainFrame.add(p,BorderLayout.EAST);
+        playerWhitePanel.setBackground(new Color(220, 220, 220));
+        playerWhitePanel.setBorder(paddedBorderLeft);
+        mainFrame.add(playerWhitePanel,BorderLayout.EAST);
         //Plateau de jeu
-        p = new BoardContainer(new GridBagLayout()); {
+        JPanel p = new BoardContainer(new GridBagLayout()); {
             p.add(board, new GridBagConstraints());
         }
         p.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         mainFrame.add(p,BorderLayout.CENTER);
+
     }
     /**
      * Initilise les controlleurs de la fenêtre
@@ -153,39 +156,69 @@ public class OthelloGUI {
     private void createControllers() {
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
+        //Game observer
         game.addObserver(new Observer() {
             @Override
             public void update(Observable o, Object arg) {
-                board.refreshModel(game);
+                refreshView();
             }
         });
 
-        board.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                OthelloTile viewTile = board.getTile(e.getPoint());
-                System.out.println(e.getPoint().toString());
+        //MouseClicked, MouseEntered and MouseExited on all OthelloTile
+        for(int i=0; i<8; i++) {
+            for(int j=0; j<8; j++) {
+                board.getTile(i,j).addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        OthelloTile tile = (OthelloTile)(e.getSource());
+                        if(tile.getStatus() == TileStatus.EMPTY_PLAYABLE
+                            || tile.getStatus() == TileStatus.EMPTY_PLAYABLE_HOVERED) {
+                            if( game.getPlayerWhoPlay() instanceof RealPlayer) {
+                                RealPlayer p = (RealPlayer) game.getPlayerWhoPlay();
+                                p.setPlay(tile.getPosition());
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+                        OthelloTile tile = (OthelloTile)(e.getSource());
+                        if(tile.getStatus() == TileStatus.EMPTY_PLAYABLE) {
+                            tile.setStatus(TileStatus.EMPTY_PLAYABLE_HOVERED);
+                            tile.repaint();
+                        }
+                    }
+
+                    @Override
+                    public void mouseExited(MouseEvent e) {
+                        OthelloTile tile = (OthelloTile)(e.getSource());
+                        if(tile.getStatus() == TileStatus.EMPTY_PLAYABLE_HOVERED) {
+                            tile.setStatus(TileStatus.EMPTY_PLAYABLE);
+                            tile.repaint();
+                        }
+                    }
+                });
             }
-        });
-        board.addMouseMotionListener(new MouseAdapter() {
-            OthelloTile hovered_tile;
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                super.mouseMoved(e);
-                OthelloTile actual_hovered_tile = board.getTile(e.getPoint());
-                if(hovered_tile!=null && hovered_tile.getStatus()==TileStatus.EMPTY_PLAYABLE && hovered_tile!=actual_hovered_tile) {
-                    hovered_tile.setStatus(TileStatus.EMPTY_PLAYABLE);
-                    hovered_tile.repaint();
-                }
-                if(actual_hovered_tile != null && actual_hovered_tile.getStatus() == TileStatus.EMPTY_PLAYABLE) {
-                    actual_hovered_tile.setStatus(TileStatus.EMPTY_PLAYABLE_HOVERED);
-                    actual_hovered_tile.repaint();
-                }
-                hovered_tile = actual_hovered_tile;
-            }
-        });
+        }
         board.requestFocus();
+    }
+
+    /**
+     * Méthode mettant à jour la vue
+     */
+    private void refreshView() {
+        if(game.getPlayerTurn() == Tile.BLACK) {
+            playerBlackPanel.setBackground(new Color(130, 220, 220));
+            playerWhitePanel.setBackground(new Color(220, 220, 220));
+        } else {
+            playerWhitePanel.setBackground(new Color(130, 220, 220));
+            playerBlackPanel.setBackground(new Color(220, 220, 220));
+        }
+        playerBlackScore.setText(""+game.getPlayerBlackScore());
+        playerWhiteScore.setText(""+game.getPlayerWhiteScore());
+        playerBlackPanel.repaint();
+        playerWhitePanel.repaint();
+        board.refreshModel(game);
     }
 
     /**
